@@ -3,155 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ứng dụng Lập Lệnh Xuất Hàng</title>
+    <title>Hệ Thống Quản Lý Xuất Hàng</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
-        h1, h2, h3 { color: #005A9C; }
-        /* Các phần cấp cao nhất */
-        .main-section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
-        /* Các phần con bên trong mainApp */
-        .sub-section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
 
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input,.form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .form-group button { width: 100%; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
-        .form-group button:hover { background-color: #0056b3; }
-        .button-group { display: flex; gap: 10px; margin-top: 20px; }
-        .button-group button { flex: 1; padding: 12px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
-        .button-group button.secondary { background-color: #6c757d; }
-        .button-group button.danger { background-color: #dc3545; }
-        .button-group button:hover { opacity: 0.9; }
-        .table-container { margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
-        .message.success { background-color: #d4edda; color: #155724; }
-        .message.error { background-color: #f8d7da; color: #721c24; }
-        #adminPanel button { margin-bottom: 10px; }
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 15px;
+        }
+
+        .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0d62c9;
+        }
+
+        button.danger {
+            background-color: #ea4335;
+        }
+
+        button.danger:hover {
+            background-color: #d33426;
+        }
+
+        button.success {
+            background-color: #34a853;
+        }
+
+        button.success:hover {
+            background-color: #2a8e46;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .password-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #e8e8e8;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: #1a73e8;
+            color: white;
+        }
+
+        .tab-content {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 0 4px 4px 4px;
+        }
+
+        .admin-panel {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .notification {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Hệ thống Lập Lệnh Xuất Hàng</h1>
+        <!-- Màn hình nhập mật khẩu -->
+        <div id="passwordScreen" class="password-container">
+            <h2>Đăng Nhập Hệ Thống</h2>
+            <div class="form-group">
+                <input type="password" id="mainPassword" placeholder="Nhập mật khẩu">
+            </div>
+            <button onclick="checkMainPassword()">Đăng Nhập</button>
+            <div id="passwordError" class="notification error hidden">Mật khẩu không đúng!</div>
+        </div>
 
-        <div id="mainApp" class="main-section">
-            <div class="button-group">
-                <button onclick="showSubSection('customerManagementSection')">Quản lý Khách hàng</button>
-                <button onclick="showSubSection('orderCreationSection')">Lập Lệnh Bán hàng</button>
-                <button onclick="showSubSection('adminPanel')">Quản trị Trang</button>
+        <!-- Giao diện chính (ẩn ban đầu) -->
+        <div id="mainApp" class="hidden">
+            <header>
+                <h1>HỆ THỐNG QUẢN LÝ XUẤT HÀNG</h1>
+                <p>CÔNG TY CỔ PHẦN KINH DOANH LPG VIỆT NAM - CHI NHÁNH MIỀN BẮC</p>
+            </header>
+
+            <!-- Tab container -->
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('customerTab')">Quản lý Khách Hàng</div>
+                <div class="tab" onclick="switchTab('orderTab')">Lập Lệnh Xuất Hàng</div>
+                <div class="tab" onclick="switchTab('adminTab')">Quản Trị Trang</div>
             </div>
 
-            <div id="customerManagementSection" class="sub-section">
-                <h3>Quản lý Khách hàng</h3>
-                <p>Nhập liệu danh sách khách hàng theo 2 cách.</p>
-                <div class="form-group">
-                    <label>Cách 1: Nhập bằng file Excel</label>
-                    <input type="file" id="excelFileInput" accept=".xlsx">
-                    <button onclick="importCustomers()">Tải lên file MaunhapDS.xlsx</button>
-                    <div id="importMessage" class="message"></div>
+            <!-- Tab Quản lý Khách Hàng -->
+            <div id="customerTab" class="tab-content">
+                <h2>Quản Lý Danh Sách Khách Hàng</h2>
+                
+                <div class="section">
+                    <h3>Nhập từ File Excel</h3>
+                    <div class="form-group">
+                        <input type="file" id="excelFile" accept=".xlsx, .xls">
+                    </div>
+                    <button onclick="importFromExcel()">Nhập Dữ Liệu từ Excel</button>
                 </div>
-                <hr>
-                <div class="form-group">
-                    <label>Cách 2: Nhập từng khách hàng</label>
-                    <input type="text" id="newCustomerCode" placeholder="MÃ MỚI">
-                    <input type="text" id="newCustomerName" placeholder="Tên đối tượng">
-                    <button onclick="saveCustomer()">Lưu khách hàng mới</button>
+
+                <div class="section">
+                    <h3>Thêm Khách Hàng Mới</h3>
+                    <div class="form-group">
+                        <label for="customerCode">MÃ MỚI:</label>
+                        <input type="text" id="customerCode" placeholder="Nhập mã khách hàng">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerName">Tên đối tượng:</label>
+                        <input type="text" id="customerName" placeholder="Nhập tên khách hàng">
+                    </div>
+                    <button onclick="addCustomer()">Thêm Khách Hàng</button>
                 </div>
-                <hr>
-                <div class="form-group">
-                    <label>Sửa thông tin khách hàng</label>
-                    <input type="text" id="editCustomerCode" placeholder="MÃ MỚI để sửa">
-                    <input type="text" id="editCustomerName" placeholder="Tên đối tượng mới">
-                    <button onclick="updateCustomer()">Sửa và Lưu</button>
+
+                <div class="section">
+                    <h3>Chỉnh Sửa Khách Hàng</h3>
+                    <div class="form-group">
+                        <label for="editCustomerCode">MÃ MỚI cần sửa:</label>
+                        <input type="text" id="editCustomerCode" placeholder="Nhập mã khách hàng cần sửa">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCustomerName">Tên đối tượng mới:</label>
+                        <input type="text" id="editCustomerName" placeholder="Nhập tên mới">
+                    </div>
+                    <button onclick="editCustomer()">Lưu Thay Đổi</button>
                 </div>
-                <div class="form-group">
-                    <button onclick="exportCustomers()">Xuất danh sách khách hàng ra Excel</button>
-                </div>
-                <div class="table-container">
-                    <h3>Danh sách khách hàng</h3>
-                    <table id="customerTable">
-                        <thead>
-                            <tr><th>MÃ MỚI</th><th>Tên đối tượng</th></tr>
-                        </thead>
-                        <tbody>
+
+                <div class="section">
+                    <h3>Danh Sách Khách Hàng</h3>
+                    <button onclick="exportCustomersToExcel()">Xuất Danh Sách ra Excel</button>
+                    <div id="customersList">
+                        <table id="customersTable">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>MÃ MỚI</th>
+                                    <th>Tên đối tượng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody">
+                                <!-- Dữ liệu khách hàng sẽ được thêm ở đây -->
                             </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div id="orderCreationSection" class="sub-section">
-                <h3>Lập Lệnh Bán hàng</h3>
-                <div class="form-group">
-                    <label for="orderDate">Ngày tháng năm (G12):</label>
-                    <input type="date" id="orderDate">
+            <!-- Tab Lập Lệnh Xuất Hàng -->
+            <div id="orderTab" class="tab-content hidden">
+                <h2>Lập Lệnh Xuất Hàng</h2>
+                
+                <div class="section">
+                    <div class="form-group">
+                        <label for="orderDate">Ngày tháng năm (G12):</label>
+                        <input type="date" id="orderDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerCodeInput">MÃ MỚI khách hàng:</label>
+                        <input type="text" id="customerCodeInput" placeholder="Nhập mã khách hàng" onchange="findCustomerByCode()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="receiver">Người nhận hàng (A16):</label>
+                        <input type="text" id="receiver" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transporter">Người vận chuyển (G18):</label>
+                        <input type="text" id="transporter" placeholder="Nhập tên người vận chuyển">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vehicleNumber">Số xe (G21):</label>
+                        <input type="text" id="vehicleNumber" placeholder="Nhập số xe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bottle45">Số chai 45 kg (D23):</label>
+                        <input type="number" id="bottle45" min="0" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bottle12">Số chai 12 kg (D24):</label>
+                        <input type="number" id="bottle12" min="0" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bottle11">Số chai 11 kg (D25):</label>
+                        <input type="number" id="bottle11" min="0" value="0">
+                    </div>
+                    
+                    <button class="success" onclick="saveOrder()">Lưu Lệnh</button>
+                    <button onclick="printOrder()">In Lệnh</button>
+                    <button onclick="clearOrderForm()">Làm Mới</button>
                 </div>
-                <div class="form-group">
-                    <label for="recipientCode">MÃ MỚI Khách hàng:</label>
-                    <input type="text" id="recipientCode" placeholder="Nhập MÃ MỚI">
+                
+                <div class="section">
+                    <h3>Danh Sách Lệnh Đã Tạo</h3>
+                    <div id="ordersList">
+                        <table id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Số lệnh</th>
+                                    <th>Ngày</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng chai</th>
+                                    <th>Tổng kg</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Dữ liệu lệnh sẽ được thêm ở đây -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="recipientName">Người nhận hàng (A16):</label>
-                    <input type="text" id="recipientName" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="carrierName">Người vận chuyển (G18):</label>
-                    <input type="text" id="carrierName" placeholder="Nhập tên người vận chuyển">
-                </div>
-                <div class="form-group">
-                    <label for="vehicleNumber">Số xe (G21):</label>
-                    <input type="text" id="vehicleNumber" placeholder="Nhập số xe">
-                </div>
-                <div class="form-group">
-                    <label for="bottles45kg">Số chai 45 kg (D23):</label>
-                    <input type="number" id="bottles45kg" min="0" value="0">
-                </div>
-                <div class="form-group">
-                    <label for="bottles12kg">Số chai 12 kg (D24):</label>
-                    <input type="number" id="bottles12kg" min="0" value="0">
-                </div>
-                <div class="form-group">
-                    <label for="bottles11kg">Số chai 11 kg (D25):</label>
-                    <input type="number" id="bottles11kg" min="0" value="0">
-                </div>
-                <div class="button-group">
-                    <button onclick="saveOrder()">Lưu Lệnh</button>
-                    <button onclick="printOrder()" class="secondary">In Lệnh</button>
-                </div>
-                <div id="orderMessage" class="message"></div>
             </div>
 
-            <div id="adminPanel" class="sub-section">
-                <h3>Quản trị Trang</h3>
-                <div class="form-group">
-                    <label for="adminPassword">Nhập mật khẩu quản trị:</label>
-                    <input type="password" id="adminPassword">
-                    <button onclick="checkAdminPassword()">Xác nhận</button>
+            <!-- Tab Quản Trị Trang -->
+            <div id="adminTab" class="tab-content hidden">
+                <h2>Quản Trị Hệ Thống</h2>
+                
+                <div class="section">
+                    <h3>Đăng Nhập Quản Trị</h3>
+                    <div class="form-group">
+                        <label for="adminPassword">Mật khẩu quản trị:</label>
+                        <input type="password" id="adminPassword" placeholder="Nhập mật khẩu quản trị">
+                    </div>
+                    <button onclick="checkAdminPassword()">Đăng Nhập Quản Trị</button>
+                    <div id="adminPasswordError" class="notification error hidden">Mật khẩu không đúng!</div>
                 </div>
-                <div id="adminFunctions" style="display: none;">
-                    <button onclick="deleteAllCustomers()" class="danger">Xóa toàn bộ danh sách khách hàng</button>
-                    <button onclick="deleteAllOrders()" class="danger">Xóa toàn bộ dữ liệu lệnh</button>
-                    <button onclick="hideAdminFunctions()" class="secondary">Đóng</button>
-                    <div id="adminMessage" class="message"></div>
+                
+                <div id="adminPanel" class="admin-panel hidden">
+                    <h3>Khu Vực Quản Trị</h3>
+                    <button class="danger" onclick="deleteAllCustomers()">Xoá Toàn Bộ Danh Sách Khách Hàng</button>
+                    <button class="danger" onclick="deleteAllOrders()">Xoá Toàn Bộ Dữ Liệu Lệnh</button>
+                    <button onclick="closeAdminPanel()">Đóng Lại</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Các thư viện khác không phải Firebase vẫn được tải toàn cục -->
-    <script src="https://unpkg.com/read-excel-file@5.0.0/dist/read-excel-file.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx-template@1.4.4/dist/xlsx-template.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-
-    <script type="module">
-        // Import các hàm Firebase từ CDN
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
-        // Cấu hình Firebase của bạn
+    <script>
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBy1H9xX0qwnjpEQngFKpMq56L6VvMWqAI",
             authDomain: "cnmb-ce04d.firebaseapp.com",
@@ -162,385 +394,524 @@
             appId: "1:854586394737:web:92825e9abc082db7da73d0",
             measurementId: "G-QH7VEVNFDL"
         };
-        // app và db cần được khai báo toàn cục trong phạm vi module
-        let app;
-        let db;
 
-        const CUSTOMERS_COLLECTION = 'customers';
-        const ORDERS_COLLECTION = 'orders';
-        const COUNTER_COLLECTION = 'orderCounters';
-        const COUNTER_DOC_ID = 'mainCounter';
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // Mật khẩu cứng cho phần quản trị
-        const adminPassword = '24681357';
+        // Biến toàn cục
+        let customers = [];
+        let orders = [];
+        let currentOrderId = 1;
+        let isAdminAuthenticated = false;
 
-        // Hàm quản lý hiển thị các phần cấp cao nhất (ví dụ: mainApp)
-        function showMainSection(sectionId) {
-            document.querySelectorAll('.container > .main-section').forEach(section => {
-                section.style.display = 'none';
-            });
-            document.getElementById(sectionId).style.display = 'block';
-        }
-
-        // Hàm quản lý hiển thị các phần con bên trong mainApp
-        function showSubSection(subSectionId) {
-            document.querySelectorAll('#mainApp > .sub-section').forEach(section => {
-                section.style.display = 'none';
-            });
-            document.getElementById(subSectionId).style.display = 'block';
-        }
-
-        // Chức năng quản lý Khách hàng
-        async function loadCustomers() {
-            const tableBody = document.querySelector('#customerTable tbody');
-            tableBody.innerHTML = '';
-            const customersRef = collection(db, CUSTOMERS_COLLECTION);
-            const snapshot = await getDocs(customersRef);
-            snapshot.forEach(customerDoc => {
-                const customer = customerDoc.data();
-                const row = tableBody.insertRow();
-                row.insertCell(0).textContent = customerDoc.id;
-                row.insertCell(1).textContent = customer.customerName;
-            });
-        }
-
-        async function importCustomers() {
-            const input = document.getElementById('excelFileInput');
-            const file = input.files[0]; // Lấy file đầu tiên từ FileList
-            const messageEl = document.getElementById('importMessage');
-
-            if (!file) {
-                messageEl.textContent = 'Vui lòng chọn một file Excel.';
-                messageEl.className = 'message error';
-                return;
-            }
-
-            try {
-                const rows = await readXlsxFile(file);
-                // Giả định hàng đầu tiên là header, bỏ qua nó
-                const customersToSave = rows.slice(1);
-                
-                const batch = writeBatch(db); // Sử dụng writeBatch từ ES Modules
-                customersToSave.forEach(row => {
-                    const customerCode = row[1]; // Cột "MÃ MỚI"
-                    const customerName = row[2]; // Cột "Tên đối tượng"
-                    if (customerCode && customerName) {
-                        const docRef = doc(db, CUSTOMERS_COLLECTION, customerCode.toString()); // Sử dụng doc từ ES Modules
-                        batch.set(docRef, { customerName: customerName.toString() });
-                    }
-                });
-
-                await batch.commit();
-                messageEl.textContent = 'Nhập liệu thành công!';
-                messageEl.className = 'message success';
-                loadCustomers();
-            } catch (error) {
-                console.error("Lỗi khi nhập file Excel:", error);
-                messageEl.textContent = 'Lỗi: ' + error.message;
-                messageEl.className = 'message error';
-            }
-        }
-
-        async function saveCustomer() {
-            const customerCode = document.getElementById('newCustomerCode').value;
-            const customerName = document.getElementById('newCustomerName').value;
-
-            if (!customerCode || !customerName) {
-                alert('Vui lòng nhập đầy đủ Mã và Tên khách hàng.');
-                return;
-            }
-
-            try {
-                await setDoc(doc(db, CUSTOMERS_COLLECTION, customerCode), { // Sử dụng setDoc và doc từ ES Modules
-                    customerName: customerName
-                });
-                alert('Đã lưu khách hàng mới!');
-                document.getElementById('newCustomerCode').value = '';
-                document.getElementById('newCustomerName').value = '';
-                loadCustomers();
-            } catch (error) {
-                console.error("Lỗi khi lưu khách hàng:", error);
-                alert('Lỗi khi lưu khách hàng: ' + error.message);
-            }
-        }
-
-        async function updateCustomer() {
-            const customerCode = document.getElementById('editCustomerCode').value;
-            const newCustomerName = document.getElementById('editCustomerName').value;
-
-            if (!customerCode || !newCustomerName) {
-                alert('Vui lòng nhập đầy đủ Mã và Tên khách hàng mới.');
-                return;
-            }
-
-            try {
-                const customerRef = doc(db, CUSTOMERS_COLLECTION, customerCode); // Sử dụng doc từ ES Modules
-                await updateDoc(customerRef, { customerName: newCustomerName }); // Sử dụng updateDoc từ ES Modules
-                alert('Đã cập nhật thông tin khách hàng!');
-                document.getElementById('editCustomerCode').value = '';
-                document.getElementById('editCustomerName').value = '';
-                loadCustomers();
-            } catch (error) {
-                console.error("Lỗi khi cập nhật khách hàng:", error);
-                alert('Lỗi khi cập nhật khách hàng: ' + error.message);
-            }
-        }
-
-        function exportCustomers() {
-            const table = document.getElementById('customerTable');
-            let csv = [];
-            for (let i = 0; i < table.rows.length; i++) {
-                let row = [], cols = table.rows[i].querySelectorAll('td, th');
-                for (let j = 0; j < cols.length; j++) {
-                    row.push(cols[j].innerText);
-                }
-                csv.push(row.join(','));
-            }
-            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "DanhSachKhachHang.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Chức năng Lập Lệnh Bán hàng
-        document.getElementById('recipientCode').addEventListener('input', async (e) => {
-            const customerCode = e.target.value;
-            if (customerCode) {
-                const customerRef = doc(db, CUSTOMERS_COLLECTION, customerCode); // Sử dụng doc từ ES Modules
-                const customerDoc = await getDocs(customerRef); // getDocs for a specific doc
-                if (customerDoc.exists()) {
-                    document.getElementById('recipientName').value = customerDoc.data().customerName;
-                } else {
-                    document.getElementById('recipientName').value = 'Không tìm thấy khách hàng';
-                }
+        // Hàm kiểm tra mật khẩu chính
+        function checkMainPassword() {
+            const password = document.getElementById('mainPassword').value;
+            if (password === '1122334455') {
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                loadData();
             } else {
-                document.getElementById('recipientName').value = '';
-            }
-        });
-
-        async function saveOrder() {
-            const orderDate = document.getElementById('orderDate').value;
-            const recipientCode = document.getElementById('recipientCode').value;
-            const recipientName = document.getElementById('recipientName').value;
-            const carrierName = document.getElementById('carrierName').value;
-            const vehicleNumber = document.getElementById('vehicleNumber').value;
-            const bottles45kg = parseInt(document.getElementById('bottles45kg').value);
-            const bottles12kg = parseInt(document.getElementById('bottles12kg').value);
-            const bottles11kg = parseInt(document.getElementById('bottles11kg').value);
-            const messageEl = document.getElementById('orderMessage');
-
-            if (!orderDate || !recipientCode || !recipientName || !carrierName || !vehicleNumber) {
-                messageEl.textContent = 'Vui lòng điền đầy đủ thông tin bắt buộc.';
-                messageEl.className = 'message error';
-                return;
-            }
-
-            try {
-                // Sử dụng Transaction để tạo mã lệnh tự động, tránh xung đột dữ liệu
-                const counterRef = doc(db, COUNTER_COLLECTION, COUNTER_DOC_ID); // Sử dụng doc từ ES Modules
-                let orderNumber = '';
-
-                await runTransaction(db, async (transaction) => { // Sử dụng runTransaction từ ES Modules
-                    const counterDoc = await transaction.get(counterRef);
-                    let lastOrderNumber = 0;
-                    if (counterDoc.exists()) {
-                        lastOrderNumber = counterDoc.data().lastOrderNumber || 0;
-                    }
-                    const newOrderNumber = lastOrderNumber + 1;
-                    orderNumber = String(newOrderNumber).padStart(3, '0');
-                    transaction.set(counterRef, { lastOrderNumber: newOrderNumber });
-                });
-
-                const orderData = {
-                    orderNumber: orderNumber,
-                    date: orderDate,
-                    recipientCode: recipientCode,
-                    recipientName: recipientName,
-                    carrierName: carrierName,
-                    vehicleNumber: vehicleNumber,
-                    bottles45kg: bottles45kg,
-                    bottles12kg: bottles12kg,
-                    bottles11kg: bottles11kg,
-                    createdAt: new Date()
-                };
-
-                await setDoc(doc(db, ORDERS_COLLECTION, orderNumber), orderData); // Sử dụng setDoc và doc từ ES Modules
-                messageEl.textContent = `Đã lưu lệnh xuất hàng số: ${orderNumber}`;
-                messageEl.className = 'message success';
-                
-            } catch (error) {
-                console.error("Lỗi khi lưu lệnh:", error);
-                messageEl.textContent = 'Lỗi: ' + error.message;
-                messageEl.className = 'message error';
+                document.getElementById('passwordError').classList.remove('hidden');
             }
         }
 
-        async function printOrder() {
-            const orderMessageEl = document.getElementById('orderMessage');
-            const orderNumberMatch = orderMessageEl.textContent.match(/số: (\d+)/);
-            const orderNumber = orderNumberMatch ? orderNumberMatch[1] : null;
-
-            if (!orderNumber || orderNumber.length === 0) {
-                alert('Vui lòng lưu lệnh trước khi in.');
-                return;
-            }
-
-            const orderRef = doc(db, ORDERS_COLLECTION, orderNumber); // Sử dụng doc từ ES Modules
-            const orderDoc = await getDocs(orderRef); // getDocs for a specific doc
-            if (!orderDoc.exists()) {
-                alert('Không tìm thấy lệnh này.');
-                return;
-            }
-            const orderData = orderDoc.data();
-
-            // Tải template file excel từ URL đã cho
-            const templateUrl = 'https://docs.google.com/spreadsheets/d/1XlR_B6zNqO_R4bK_GjVl6k5x7M4z8dM9/export?format=xlsx';
-            
-            try {
-                const response = await fetch(templateUrl);
-                const buffer = await response.arrayBuffer();
-
-                // Tạo một instance của XlsxTemplate từ buffer
-                const template = new XlsxTemplate(buffer);
-
-                // Các tham số tương ứng với các placeholder trong file mẫu
-                const values = {
-                    G11: orderNumber,
-                    G12: orderData.date,
-                    A16: orderData.recipientName,
-                    G18: orderData.carrierName,
-                    G21: orderData.vehicleNumber,
-                    D23: orderData.bottles45kg,
-                    D24: orderData.bottles12kg,
-                    D25: orderData.bottles11kg
-                };
-
-                // Điền dữ liệu vào template (sheet 1)
-                template.substitute(1, values);
-
-                // Tạo một file blob từ kết quả
-                const outputData = template.generate({ type: 'blob' });
-
-                // Lưu file với tên tùy chỉnh
-                saveAs(outputData, `Lệnh Xuất Hàng_${orderNumber}.xlsx`);
-                alert('Đã xuất file Excel thành công!');
-            } catch (error) {
-                console.error("Lỗi khi in lệnh:", error);
-                alert('Lỗi khi in lệnh: ' + error.message);
-            }
-        }
-
-        // Chức năng quản trị
+        // Hàm kiểm tra mật khẩu quản trị
         function checkAdminPassword() {
             const password = document.getElementById('adminPassword').value;
-            const messageEl = document.getElementById('adminMessage');
-            if (password === adminPassword) {
-                document.getElementById('adminFunctions').style.display = 'block';
-                messageEl.textContent = 'Đã vào chế độ quản trị.';
-                messageEl.className = 'message success';
+            if (password === '24681357') {
+                isAdminAuthenticated = true;
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('adminPasswordError').classList.add('hidden');
             } else {
-                messageEl.textContent = 'Mật khẩu quản trị không đúng!';
-                messageEl.className = 'message error';
+                document.getElementById('adminPasswordError').classList.remove('hidden');
             }
         }
 
-        function hideAdminFunctions() {
-            document.getElementById('adminFunctions').style.display = 'none';
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('adminMessage').textContent = '';
+        // Hàm chuyển tab
+        function switchTab(tabId) {
+            // Ẩn tất cả các tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Hiển thị tab được chọn
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Cập nhật tab active
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
         }
 
-        async function deleteAllCustomers() {
-            if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách khách hàng? Thao tác này không thể hoàn tác.')) return;
+        // Hàm đóng panel quản trị
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.add('hidden');
+            isAdminAuthenticated = false;
+        }
 
-            const messageEl = document.getElementById('adminMessage');
-            const batchSize = 500;
-            const customersRef = collection(db, CUSTOMERS_COLLECTION); // Sử dụng collection từ ES Modules
-            let totalDeleted = 0;
+        // Hàm tải dữ liệu từ Firebase
+        function loadData() {
+            // Tải danh sách khách hàng
+            db.collection("customers").orderBy("code").onSnapshot((snapshot) => {
+                customers = [];
+                snapshot.forEach((doc) => {
+                    customers.push({ id: doc.id, ...doc.data() });
+                });
+                renderCustomersTable();
+            });
 
-            try {
-                let querySnapshot = await getDocs(customersRef);
-                while (querySnapshot.size > 0) {
-                    const batch = writeBatch(db); // Sử dụng writeBatch từ ES Modules
-                    querySnapshot.forEach(customerDoc => {
-                        batch.delete(customerDoc.ref);
-                    });
-                    await batch.commit();
-                    totalDeleted += querySnapshot.size;
-                    console.log(`Đã xóa ${querySnapshot.size} document. Tổng cộng: ${totalDeleted}`);
-                    querySnapshot = await getDocs(customersRef); // Lấy lại snapshot để kiểm tra còn tài liệu không
+            // Tải danh sách lệnh và xác định orderId tiếp theo
+            db.collection("orders").orderBy("orderId", "desc").limit(1).get().then((snapshot) => {
+                if (!snapshot.empty) {
+                    const lastOrder = snapshot.docs[0].data();
+                    currentOrderId = lastOrder.orderId + 1;
+                } else {
+                    currentOrderId = 1;
                 }
-                messageEl.textContent = `Đã xóa thành công ${totalDeleted} khách hàng.`;
-                messageEl.className = 'message success';
-                loadCustomers(); // Cập nhật lại danh sách sau khi xóa
-            } catch (error) {
-                console.error("Lỗi khi xóa khách hàng:", error);
-                messageEl.textContent = 'Lỗi khi xóa: ' + error.message;
-                messageEl.className = 'message error';
-            }
-        }
-
-        async function deleteAllOrders() {
-            if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu lệnh? Thao tác này không thể hoàn tác.')) return;
-
-            const messageEl = document.getElementById('adminMessage');
-            const batchSize = 500;
-            const ordersRef = collection(db, ORDERS_COLLECTION); // Sử dụng collection từ ES Modules
-            let totalDeleted = 0;
-
-            try {
-                let querySnapshot = await getDocs(ordersRef);
-                while (querySnapshot.size > 0) {
-                    const batch = writeBatch(db); // Sử dụng writeBatch từ ES Modules
-                    querySnapshot.forEach(orderDoc => {
-                        batch.delete(orderDoc.ref);
+                
+                // Sau khi xác định orderId, tải toàn bộ orders
+                db.collection("orders").orderBy("orderId", "desc").onSnapshot((snapshot) => {
+                    orders = [];
+                    snapshot.forEach((doc) => {
+                        orders.push({ id: doc.id, ...doc.data() });
                     });
-                    await batch.commit();
-                    totalDeleted += querySnapshot.size;
-                    console.log(`Đã xóa ${querySnapshot.size} document. Tổng cộng: ${totalDeleted}`);
-                    querySnapshot = await getDocs(ordersRef); // Lấy lại snapshot
-                }
+                    renderOrdersTable();
+                });
+            });
+        }
 
-                // Xóa cả bộ đếm để reset số lệnh
-                const counterRef = doc(db, COUNTER_COLLECTION, COUNTER_DOC_ID); // Sử dụng doc từ ES Modules
-                await deleteDoc(counterRef); // Sử dụng deleteDoc từ ES Modules
+        // Hàm hiển thị danh sách khách hàng
+        function renderCustomersTable() {
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+            
+            customers.forEach((customer, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${customer.code}</td>
+                    <td>${customer.name}</td>
+                    <td>
+                        <button onclick="deleteCustomer('${customer.id}')">Xoá</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
 
-                messageEl.textContent = `Đã xóa thành công ${totalDeleted} lệnh.`;
-                messageEl.className = 'message success';
-            } catch (error) {
-                console.error("Lỗi khi xóa lệnh:", error);
-                messageEl.textContent = 'Lỗi khi xóa: ' + error.message;
-                messageEl.className = 'message error';
+        // Hàm hiển thị danh sách lệnh
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            orders.forEach((order) => {
+                const totalBottles = parseInt(order.bottle45 || 0) + parseInt(order.bottle12 || 0) + parseInt(order.bottle11 || 0);
+                const totalKg = (parseInt(order.bottle45 || 0) * 45) + (parseInt(order.bottle12 || 0) * 12) + (parseInt(order.bottle11 || 0) * 11);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.orderId.toString().padStart(3, '0')}</td>
+                    <td>${order.date}</td>
+                    <td>${order.receiver}</td>
+                    <td>${totalBottles}</td>
+                    <td>${totalKg} kg</td>
+                    <td>
+                        <button onclick="printSpecificOrder('${order.id}')">In</button>
+                        <button class="danger" onclick="deleteOrder('${order.id}')">Xoá</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Hàm thêm khách hàng
+        function addCustomer() {
+            const code = document.getElementById('customerCode').value.trim();
+            const name = document.getElementById('customerName').value.trim();
+            
+            if (!code || !name) {
+                alert('Vui lòng nhập đầy đủ thông tin!');
+                return;
+            }
+            
+            // Kiểm tra xem mã đã tồn tại chưa
+            const existingCustomer = customers.find(c => c.code === code);
+            if (existingCustomer) {
+                alert('Mã khách hàng đã tồn tại!');
+                return;
+            }
+            
+            db.collection("customers").add({
+                code: code,
+                name: name
+            }).then(() => {
+                alert('Thêm khách hàng thành công!');
+                document.getElementById('customerCode').value = '';
+                document.getElementById('customerName').value = '';
+            }).catch((error) => {
+                alert('Lỗi khi thêm khách hàng: ' + error.message);
+            });
+        }
+
+        // Hàm sửa khách hàng
+        function editCustomer() {
+            const code = document.getElementById('editCustomerCode').value.trim();
+            const newName = document.getElementById('editCustomerName').value.trim();
+            
+            if (!code || !newName) {
+                alert('Vui lòng nhập đầy đủ thông tin!');
+                return;
+            }
+            
+            const customer = customers.find(c => c.code === code);
+            if (!customer) {
+                alert('Không tìm thấy khách hàng với mã này!');
+                return;
+            }
+            
+            db.collection("customers").doc(customer.id).update({
+                name: newName
+            }).then(() => {
+                alert('Cập nhật thông tin khách hàng thành công!');
+                document.getElementById('editCustomerCode').value = '';
+                document.getElementById('editCustomerName').value = '';
+            }).catch((error) => {
+                alert('Lỗi khi cập nhật khách hàng: ' + error.message);
+            });
+        }
+
+        // Hàm xoá khách hàng
+        function deleteCustomer(customerId) {
+            if (confirm('Bạn có chắc chắn muốn xoá khách hàng này?')) {
+                db.collection("customers").doc(customerId).delete()
+                .then(() => {
+                    alert('Xoá khách hàng thành công!');
+                })
+                .catch((error) => {
+                    alert('Lỗi khi xoá khách hàng: ' + error.message);
+                });
             }
         }
 
-        // Khởi tạo trạng thái ban đầu khi tải trang
-        // Sử dụng async IIFE để có thể dùng await
-        (async function() {
-            try {
-                // Khởi tạo Firebase
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-
-                // Hiển thị mainApp và customerManagementSection ngay lập tức
-                document.getElementById('mainApp').style.display = 'block';
-                showSubSection('customerManagementSection');
-                await loadCustomers(); // Tải khách hàng khi trang khởi tạo
-
-            } catch (error) {
-                console.error("Error initializing Firebase:", error);
-                // Hiển thị lỗi nếu Firebase không khởi tạo được
-                const container = document.querySelector('.container');
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'message error';
-                errorMessage.textContent = 'Lỗi khởi tạo ứng dụng. Vui lòng kiểm tra console để biết chi tiết.';
-                container.prepend(errorMessage);
+        // Hàm tìm khách hàng theo mã
+        function findCustomerByCode() {
+            const code = document.getElementById('customerCodeInput').value.trim();
+            const customer = customers.find(c => c.code === code);
+            
+            if (customer) {
+                document.getElementById('receiver').value = customer.name;
+            } else {
+                document.getElementById('receiver').value = '';
+                alert('Không tìm thấy khách hàng với mã này!');
             }
-        })();
+        }
+
+        // Hàm lưu lệnh
+        function saveOrder() {
+            const date = document.getElementById('orderDate').value;
+            const receiver = document.getElementById('receiver').value;
+            const transporter = document.getElementById('transporter').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const bottle45 = document.getElementById('bottle45').value;
+            const bottle12 = document.getElementById('bottle12').value;
+            const bottle11 = document.getElementById('bottle11').value;
+            
+            if (!date || !receiver || !transporter || !vehicleNumber) {
+                alert('Vui lòng nhập đầy đủ thông tin!');
+                return;
+            }
+            
+            const orderData = {
+                orderId: currentOrderId,
+                date: formatDate(date),
+                receiver: receiver,
+                transporter: transporter,
+                vehicleNumber: vehicleNumber,
+                bottle45: bottle45,
+                bottle12: bottle12,
+                bottle11: bottle11
+            };
+            
+            db.collection("orders").add(orderData)
+            .then(() => {
+                alert('Lưu lệnh thành công! Số lệnh: ' + currentOrderId.toString().padStart(3, '0'));
+                currentOrderId++;
+                clearOrderForm();
+            })
+            .catch((error) => {
+                alert('Lỗi khi lưu lệnh: ' + error.message);
+            });
+        }
+
+        // Hàm định dạng ngày
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Hàm làm mới form lệnh
+        function clearOrderForm() {
+            document.getElementById('orderDate').value = '';
+            document.getElementById('customerCodeInput').value = '';
+            document.getElementById('receiver').value = '';
+            document.getElementById('transporter').value = '';
+            document.getElementById('vehicleNumber').value = '';
+            document.getElementById('bottle45').value = '0';
+            document.getElementById('bottle12').value = '0';
+            document.getElementById('bottle11').value = '0';
+            
+            // Đặt ngày mặc định là hôm nay
+            const today = new Date();
+            document.getElementById('orderDate').value = today.toISOString().substr(0, 10);
+        }
+
+        // Hàm in lệnh
+        function printOrder() {
+            const date = document.getElementById('orderDate').value;
+            const receiver = document.getElementById('receiver').value;
+            const transporter = document.getElementById('transporter').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const bottle45 = document.getElementById('bottle45').value;
+            const bottle12 = document.getElementById('bottle12').value;
+            const bottle11 = document.getElementById('bottle11').value;
+            
+            if (!date || !receiver || !transporter || !vehicleNumber) {
+                alert('Vui lòng nhập đầy đủ thông tin trước khi in!');
+                return;
+            }
+            
+            if (confirm('Bạn có muốn in lệnh này không?')) {
+                generateOrderExcel(
+                    currentOrderId.toString().padStart(3, '0'),
+                    formatDate(date),
+                    receiver,
+                    transporter,
+                    vehicleNumber,
+                    bottle45,
+                    bottle12,
+                    bottle11
+                );
+            }
+        }
+
+        // Hàm in lệnh cụ thể
+        function printSpecificOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                if (confirm('Bạn có muốn in lệnh này không?')) {
+                    generateOrderExcel(
+                        order.orderId.toString().padStart(3, '0'),
+                        order.date,
+                        order.receiver,
+                        order.transporter,
+                        order.vehicleNumber,
+                        order.bottle45,
+                        order.bottle12,
+                        order.bottle11
+                    );
+                }
+            }
+        }
+
+        // Hàm xoá lệnh
+        function deleteOrder(orderId) {
+            if (confirm('Bạn có chắc chắn muốn xoá lệnh này?')) {
+                db.collection("orders").doc(orderId).delete()
+                .then(() => {
+                    alert('Xoá lệnh thành công!');
+                })
+                .catch((error) => {
+                    alert('Lỗi khi xoá lệnh: ' + error.message);
+                });
+            }
+        }
+
+        // Hàm nhập dữ liệu từ Excel
+        function importFromExcel() {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Vui lòng chọn file Excel!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Giả sử dữ liệu nằm ở sheet đầu tiên
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Xử lý dữ liệu
+                let importedCount = 0;
+                let errorCount = 0;
+                
+                jsonData.forEach(row => {
+                    const code = row['MÃ MỚI'];
+                    const name = row['Tên đối tượng'];
+                    
+                    if (code && name) {
+                        // Kiểm tra xem mã đã tồn tại chưa
+                        const existingCustomer = customers.find(c => c.code === code);
+                        if (!existingCustomer) {
+                            db.collection("customers").add({
+                                code: code,
+                                name: name
+                            }).then(() => {
+                                importedCount++;
+                            }).catch(() => {
+                                errorCount++;
+                            });
+                        } else {
+                            errorCount++;
+                        }
+                    } else {
+                        errorCount++;
+                    }
+                });
+                
+                // Hiển thị kết quả nhập
+                setTimeout(() => {
+                    alert(`Nhập dữ liệu hoàn tất!\nThành công: ${importedCount}\nLỗi: ${errorCount}`);
+                    fileInput.value = '';
+                }, 1000);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Hàm xuất danh sách khách hàng ra Excel
+        function exportCustomersToExcel() {
+            // Tạo workbook và worksheet
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(customers.map(c => ({ 
+                'MÃ MỚI': c.code, 
+                'Tên đối tượng': c.name 
+            })));
+            
+            // Thêm worksheet vào workbook
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách khách hàng');
+            
+            // Xuất file
+            XLSX.writeFile(workbook, 'danh_sach_khach_hang.xlsx');
+        }
+
+        // Hàm tạo file Excel cho lệnh xuất hàng
+        function generateOrderExcel(orderNumber, date, receiver, transporter, vehicleNumber, bottle45, bottle12, bottle11) {
+            // Tạo workbook mới
+            const workbook = XLSX.utils.book_new();
+            
+            // Tạo dữ liệu cho worksheet
+            const worksheetData = [
+                [null, null, null, null, "CÔNG TY CỔ PHẦN KINH DOANH LPG VIỆT NAM", null, null],
+                [null, null, null, null, "CHI NHÁNH MIỀN BẮC", null, null],
+                [null, null, null, null, "Tầng 11, toà nhà Viện Dầu khí, tầng 11, số 167 Trung Kính, Yên Hòa, Hà Nội", null, null],
+                [null, null, null, null, "Điện thoại: 024.37667759 - FAX: 024.37667761", null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, "LỆNH XUẤT HÀNG", null, null, null],
+                [null, null, "(KIÊM PHIẾU XUẤT KHO - CÓ GIÁ TRỊ XUẤT HÀNG TRONG NGÀY )", null, null, null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, "Số lệnh xuất hàng:", null, orderNumber + "/TNHN"],
+                [null, null, null, null, null, "Ngày", null, date],
+                [null, null, null, null, null, null, null],
+                [null, null, null, "XUẤT CHO", null, null, null],
+                ["KHÁCH HÀNG:", null, null, null, null, "Người nhận hàng:", receiver],
+                [null, null, null, null, null, "Số CCCD", null],
+                [null, null, null, null, null, "Điện Thoại", null],
+                ["KHO XUẤT HÀNG:", null, null, null, null, "Người vận chuyển:", transporter],
+                [null, null, null, null, null, "Số CCCD", null],
+                ["TRẠM NẠP LPG HÀ NỘI", null, null, null, null, "Điện Thoại", null],
+                [null, null, null, null, null, "Số xe:", vehicleNumber],
+                ["Tên Hàng", null, "Nhãn hiệu", "Số chai", "LPG (kg)", null, "GHI CHÚ"],
+                ["LPG chai 45 kg", null, "Petrovietnam Gas", bottle45, "=" + bottle45 + "*45", null, null],
+                ["LPG chai 12 kg", null, "Petrovietnam Gas", bottle12, "=" + bottle12 + "*12", null, null],
+                ["LPG chai 11 kg", null, "Petrovietnam Gas", bottle11, "=" + bottle11 + "*11", null, null],
+                ["LPG chai 06 kg", null, "Petrovietnam Gas", null, null, null, null],
+                ["Tổng lượng LPG", null, null, "=SUM(D23:D26)", "=SUM(E23:E26)", null, null],
+                [null, null, null, null, null, null, null],
+                ["Phòng TC-KT", null, null, "Phòng KH-KD", null, null, "Giám đốc/ Người được ủy quyền"],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null],
+                ["Người giao hàng", null, null, null, null, null, "Người nhận hàng"],
+                ["Quản đốc trạm nạp", null, "Thủ kho", null, null, null, "Lái xe nhận hàng"],
+                [null, null, null, null, null, null, null],
+                [null, null, null, null, null, transporter, null]
+            ];
+            
+            // Tạo worksheet từ dữ liệu
+            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            
+            // Thêm worksheet vào workbook
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'phiếu in');
+            
+            // Xuất file
+            XLSX.writeFile(workbook, `lenh_xuat_hang_${orderNumber}.xlsx`);
+        }
+
+        // Hàm xoá toàn bộ khách hàng
+        function deleteAllCustomers() {
+            if (!isAdminAuthenticated) {
+                alert('Vui lòng đăng nhập quản trị trước!');
+                return;
+            }
+            
+            if (confirm('Bạn có CHẮC CHẮN muốn xoá TOÀN BỘ danh sách khách hàng? Hành động này không thể hoàn tác!')) {
+                const batch = db.batch();
+                customers.forEach(customer => {
+                    const ref = db.collection("customers").doc(customer.id);
+                    batch.delete(ref);
+                });
+                
+                batch.commit().then(() => {
+                    alert('Đã xoá toàn bộ danh sách khách hàng!');
+                }).catch((error) => {
+                    alert('Lỗi khi xoá khách hàng: ' + error.message);
+                });
+            }
+        }
+
+        // Hàm xoá toàn bộ lệnh
+        function deleteAllOrders() {
+            if (!isAdminAuthenticated) {
+                alert('Vui lòng đăng nhập quản trị trước!');
+                return;
+            }
+            
+            if (confirm('Bạn có CHẮC CHẮN muốn xoá TOÀN BỘ dữ liệu lệnh? Hành động này không thể hoàn tác!')) {
+                const batch = db.batch();
+                orders.forEach(order => {
+                    const ref = db.collection("orders").doc(order.id);
+                    batch.delete(ref);
+                });
+                
+                batch.commit().then(() => {
+                    alert('Đã xoá toàn bộ dữ liệu lệnh!');
+                    currentOrderId = 1;
+                }).catch((error) => {
+                    alert('Lỗi khi xoá lệnh: ' + error.message);
+                });
+            }
+        }
+
+        // Khởi tạo
+        window.onload = function() {
+            // Đặt ngày mặc định là hôm nay
+            const today = new Date();
+            document.getElementById('orderDate').value = today.toISOString().substr(0, 10);
+        };
     </script>
 </body>
 </html>
