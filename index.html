@@ -6,61 +6,42 @@
     <title>Ứng dụng Lập Lệnh Xuất Hàng</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
-       .container { max-width: 900px; margin: 0 auto; padding: 20px; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
         h1, h2, h3 { color: #005A9C; }
-       /* Các phần cấp cao nhất */
-       .main-section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
-       /* Các phần con bên trong mainApp */
-       .sub-section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
+        /* Các phần cấp cao nhất */
+        .main-section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
+        /* Các phần con bên trong mainApp */
+        .sub-section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
 
-       .form-group { margin-bottom: 15px; }
-       .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-       .form-group input,.form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-       .form-group button { width: 100%; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
-       .form-group button:hover { background-color: #0056b3; }
-       .button-group { display: flex; gap: 10px; margin-top: 20px; }
-       .button-group button { flex: 1; padding: 12px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
-       .button-group button.secondary { background-color: #6c757d; }
-       .button-group button.danger { background-color: #dc3545; }
-       .button-group button:hover { opacity: 0.9; }
-       .table-container { margin-top: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input,.form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-group button { width: 100%; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        .form-group button:hover { background-color: #0056b3; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        .button-group button { flex: 1; padding: 12px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        .button-group button.secondary { background-color: #6c757d; }
+        .button-group button.danger { background-color: #dc3545; }
+        .button-group button:hover { opacity: 0.9; }
+        .table-container { margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
         th { background-color: #f2f2f2; }
-       .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
-       .message.success { background-color: #d4edda; color: #155724; }
-       .message.error { background-color: #f8d7da; color: #721c24; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .message.success { background-color: #d4edda; color: #155724; }
+        .message.error { background-color: #f8d7da; color: #721c24; }
         #adminPanel button { margin-bottom: 10px; }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
-    <script src="https://unpkg.com/read-excel-file@5.0.0/dist/read-excel-file.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx-template@1.4.4/dist/xlsx-template.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Hệ thống Lập Lệnh Xuất Hàng</h1>
-
-        <div id="loginSection" class="main-section">
-            <h2>Đăng nhập</h2>
-            <div class="form-group">
-                <label for="passwordInput">Nhập mật khẩu để bắt đầu:</label>
-                <input type="password" id="passwordInput" placeholder="Mật khẩu">
-            </div>
-            <div class="form-group">
-                <button onclick="checkPassword()">Đăng nhập</button>
-            </div>
-            <div id="loginMessage" class="message"></div>
-        </div>
 
         <div id="mainApp" class="main-section">
             <div class="button-group">
                 <button onclick="showSubSection('customerManagementSection')">Quản lý Khách hàng</button>
                 <button onclick="showSubSection('orderCreationSection')">Lập Lệnh Bán hàng</button>
                 <button onclick="showSubSection('adminPanel')">Quản trị Trang</button>
-                <button onclick="logout()" class="secondary">Đăng xuất</button>
             </div>
 
             <div id="customerManagementSection" class="sub-section">
@@ -159,7 +140,17 @@
         </div>
     </div>
 
-    <script>
+    <!-- Các thư viện khác không phải Firebase vẫn được tải toàn cục -->
+    <script src="https://unpkg.com/read-excel-file@5.0.0/dist/read-excel-file.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-template@1.4.4/dist/xlsx-template.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <script type="module">
+        // Import các hàm Firebase từ CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
         // Cấu hình Firebase của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyBy1H9xX0qwnjpEQngFKpMq56L6VvMWqAI",
@@ -171,19 +162,19 @@
             appId: "1:854586394737:web:92825e9abc082db7da73d0",
             measurementId: "G-QH7VEVNFDL"
         };
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // app và db cần được khai báo toàn cục trong phạm vi module
+        let app;
+        let db;
 
         const CUSTOMERS_COLLECTION = 'customers';
         const ORDERS_COLLECTION = 'orders';
         const COUNTER_COLLECTION = 'orderCounters';
         const COUNTER_DOC_ID = 'mainCounter';
 
-        // Mật khẩu cứng theo yêu cầu của bạn
-        const mainPassword = '1122334455';
+        // Mật khẩu cứng cho phần quản trị
         const adminPassword = '24681357';
 
-        // Hàm quản lý hiển thị các phần cấp cao nhất (ví dụ: login, mainApp)
+        // Hàm quản lý hiển thị các phần cấp cao nhất (ví dụ: mainApp)
         function showMainSection(sectionId) {
             document.querySelectorAll('.container > .main-section').forEach(section => {
                 section.style.display = 'none';
@@ -199,37 +190,16 @@
             document.getElementById(subSectionId).style.display = 'block';
         }
 
-        // Chức năng đăng nhập ban đầu
-        function checkPassword() {
-            const password = document.getElementById('passwordInput').value;
-            const messageEl = document.getElementById('loginMessage');
-            if (password === mainPassword) {
-                showMainSection('mainApp'); // Hiển thị khung ứng dụng chính
-                showSubSection('customerManagementSection'); // Hiển thị phần quản lý khách hàng mặc định
-                loadCustomers();
-                messageEl.textContent = '';
-            } else {
-                messageEl.textContent = 'Mật khẩu không đúng!';
-                messageEl.className = 'message error';
-            }
-        }
-
-        // Đăng xuất
-        function logout() {
-            showMainSection('loginSection');
-            document.getElementById('passwordInput').value = '';
-        }
-
         // Chức năng quản lý Khách hàng
         async function loadCustomers() {
             const tableBody = document.querySelector('#customerTable tbody');
             tableBody.innerHTML = '';
-            const customersRef = db.collection(CUSTOMERS_COLLECTION);
-            const snapshot = await customersRef.get();
-            snapshot.forEach(doc => {
-                const customer = doc.data();
+            const customersRef = collection(db, CUSTOMERS_COLLECTION);
+            const snapshot = await getDocs(customersRef);
+            snapshot.forEach(customerDoc => {
+                const customer = customerDoc.data();
                 const row = tableBody.insertRow();
-                row.insertCell(0).textContent = doc.id;
+                row.insertCell(0).textContent = customerDoc.id;
                 row.insertCell(1).textContent = customer.customerName;
             });
         }
@@ -250,12 +220,12 @@
                 // Giả định hàng đầu tiên là header, bỏ qua nó
                 const customersToSave = rows.slice(1);
                 
-                const batch = db.batch();
+                const batch = writeBatch(db); // Sử dụng writeBatch từ ES Modules
                 customersToSave.forEach(row => {
                     const customerCode = row[1]; // Cột "MÃ MỚI"
                     const customerName = row[2]; // Cột "Tên đối tượng"
                     if (customerCode && customerName) {
-                        const docRef = db.collection(CUSTOMERS_COLLECTION).doc(customerCode.toString());
+                        const docRef = doc(db, CUSTOMERS_COLLECTION, customerCode.toString()); // Sử dụng doc từ ES Modules
                         batch.set(docRef, { customerName: customerName.toString() });
                     }
                 });
@@ -281,7 +251,7 @@
             }
 
             try {
-                await db.collection(CUSTOMERS_COLLECTION).doc(customerCode).set({
+                await setDoc(doc(db, CUSTOMERS_COLLECTION, customerCode), { // Sử dụng setDoc và doc từ ES Modules
                     customerName: customerName
                 });
                 alert('Đã lưu khách hàng mới!');
@@ -304,8 +274,8 @@
             }
 
             try {
-                const customerRef = db.collection(CUSTOMERS_COLLECTION).doc(customerCode);
-                await customerRef.update({ customerName: newCustomerName });
+                const customerRef = doc(db, CUSTOMERS_COLLECTION, customerCode); // Sử dụng doc từ ES Modules
+                await updateDoc(customerRef, { customerName: newCustomerName }); // Sử dụng updateDoc từ ES Modules
                 alert('Đã cập nhật thông tin khách hàng!');
                 document.getElementById('editCustomerCode').value = '';
                 document.getElementById('editCustomerName').value = '';
@@ -340,10 +310,10 @@
         document.getElementById('recipientCode').addEventListener('input', async (e) => {
             const customerCode = e.target.value;
             if (customerCode) {
-                const customerRef = db.collection(CUSTOMERS_COLLECTION).doc(customerCode);
-                const doc = await customerRef.get();
-                if (doc.exists) {
-                    document.getElementById('recipientName').value = doc.data().customerName;
+                const customerRef = doc(db, CUSTOMERS_COLLECTION, customerCode); // Sử dụng doc từ ES Modules
+                const customerDoc = await getDocs(customerRef); // getDocs for a specific doc
+                if (customerDoc.exists()) {
+                    document.getElementById('recipientName').value = customerDoc.data().customerName;
                 } else {
                     document.getElementById('recipientName').value = 'Không tìm thấy khách hàng';
                 }
@@ -371,13 +341,13 @@
 
             try {
                 // Sử dụng Transaction để tạo mã lệnh tự động, tránh xung đột dữ liệu
-                const counterRef = db.collection(COUNTER_COLLECTION).doc(COUNTER_DOC_ID);
+                const counterRef = doc(db, COUNTER_COLLECTION, COUNTER_DOC_ID); // Sử dụng doc từ ES Modules
                 let orderNumber = '';
 
-                await db.runTransaction(async (transaction) => {
+                await runTransaction(db, async (transaction) => { // Sử dụng runTransaction từ ES Modules
                     const counterDoc = await transaction.get(counterRef);
                     let lastOrderNumber = 0;
-                    if (counterDoc.exists) {
+                    if (counterDoc.exists()) {
                         lastOrderNumber = counterDoc.data().lastOrderNumber || 0;
                     }
                     const newOrderNumber = lastOrderNumber + 1;
@@ -398,7 +368,7 @@
                     createdAt: new Date()
                 };
 
-                await db.collection(ORDERS_COLLECTION).doc(orderNumber).set(orderData);
+                await setDoc(doc(db, ORDERS_COLLECTION, orderNumber), orderData); // Sử dụng setDoc và doc từ ES Modules
                 messageEl.textContent = `Đã lưu lệnh xuất hàng số: ${orderNumber}`;
                 messageEl.className = 'message success';
                 
@@ -419,13 +389,13 @@
                 return;
             }
 
-            const orderRef = db.collection(ORDERS_COLLECTION).doc(orderNumber);
-            const doc = await orderRef.get();
-            if (!doc.exists) {
+            const orderRef = doc(db, ORDERS_COLLECTION, orderNumber); // Sử dụng doc từ ES Modules
+            const orderDoc = await getDocs(orderRef); // getDocs for a specific doc
+            if (!orderDoc.exists()) {
                 alert('Không tìm thấy lệnh này.');
                 return;
             }
-            const orderData = doc.data();
+            const orderData = orderDoc.data();
 
             // Tải template file excel từ URL đã cho
             const templateUrl = 'https://docs.google.com/spreadsheets/d/1XlR_B6zNqO_R4bK_GjVl6k5x7M4z8dM9/export?format=xlsx';
@@ -489,22 +459,20 @@
 
             const messageEl = document.getElementById('adminMessage');
             const batchSize = 500;
-            const collectionRef = db.collection(CUSTOMERS_COLLECTION);
+            const customersRef = collection(db, CUSTOMERS_COLLECTION); // Sử dụng collection từ ES Modules
             let totalDeleted = 0;
 
             try {
-                let query = collectionRef.limit(batchSize);
-                while (true) {
-                    const snapshot = await query.get();
-                    if (snapshot.size === 0) break;
-                    
-                    const batch = db.batch();
-                    snapshot.docs.forEach(doc => {
-                        batch.delete(doc.ref);
+                let querySnapshot = await getDocs(customersRef);
+                while (querySnapshot.size > 0) {
+                    const batch = writeBatch(db); // Sử dụng writeBatch từ ES Modules
+                    querySnapshot.forEach(customerDoc => {
+                        batch.delete(customerDoc.ref);
                     });
                     await batch.commit();
-                    totalDeleted += snapshot.size;
-                    console.log(`Đã xóa ${snapshot.size} document. Tổng cộng: ${totalDeleted}`);
+                    totalDeleted += querySnapshot.size;
+                    console.log(`Đã xóa ${querySnapshot.size} document. Tổng cộng: ${totalDeleted}`);
+                    querySnapshot = await getDocs(customersRef); // Lấy lại snapshot để kiểm tra còn tài liệu không
                 }
                 messageEl.textContent = `Đã xóa thành công ${totalDeleted} khách hàng.`;
                 messageEl.className = 'message success';
@@ -521,30 +489,25 @@
 
             const messageEl = document.getElementById('adminMessage');
             const batchSize = 500;
-            const collectionRef = db.collection(ORDERS_COLLECTION);
+            const ordersRef = collection(db, ORDERS_COLLECTION); // Sử dụng collection từ ES Modules
             let totalDeleted = 0;
 
             try {
-                let query = collectionRef.limit(batchSize);
-                while (true) {
-                    const snapshot = await query.get();
-                    if (snapshot.size === 0) break;
-
-                    const batch = db.batch();
-                    snapshot.docs.forEach(doc => {
-                        batch.delete(doc.ref);
+                let querySnapshot = await getDocs(ordersRef);
+                while (querySnapshot.size > 0) {
+                    const batch = writeBatch(db); // Sử dụng writeBatch từ ES Modules
+                    querySnapshot.forEach(orderDoc => {
+                        batch.delete(orderDoc.ref);
                     });
                     await batch.commit();
-                    totalDeleted += snapshot.size;
-                    console.log(`Đã xóa ${snapshot.size} document. Tổng cộng: ${totalDeleted}`);
+                    totalDeleted += querySnapshot.size;
+                    console.log(`Đã xóa ${querySnapshot.size} document. Tổng cộng: ${totalDeleted}`);
+                    querySnapshot = await getDocs(ordersRef); // Lấy lại snapshot
                 }
 
                 // Xóa cả bộ đếm để reset số lệnh
-                const counterRef = db.collection(COUNTER_COLLECTION).doc(COUNTER_DOC_ID);
-                const counterDoc = await counterRef.get();
-                if (counterDoc.exists) {
-                    await counterRef.delete();
-                }
+                const counterRef = doc(db, COUNTER_COLLECTION, COUNTER_DOC_ID); // Sử dụng doc từ ES Modules
+                await deleteDoc(counterRef); // Sử dụng deleteDoc từ ES Modules
 
                 messageEl.textContent = `Đã xóa thành công ${totalDeleted} lệnh.`;
                 messageEl.className = 'message success';
@@ -556,22 +519,28 @@
         }
 
         // Khởi tạo trạng thái ban đầu khi tải trang
-        document.addEventListener('DOMContentLoaded', () => {
-            // Thay đổi class cho các phần cấp cao và phần con
-            // main-section là các phần tử con trực tiếp của .container
-            // sub-section là các phần tử con của #mainApp
-            document.querySelectorAll('.section').forEach(el => {
-                if (el.id === 'loginSection' || el.id === 'mainApp') {
-                    el.classList.remove('section');
-                    el.classList.add('main-section');
-                } else {
-                    el.classList.remove('section');
-                    el.classList.add('sub-section');
-                }
-            });
+        // Sử dụng async IIFE để có thể dùng await
+        (async function() {
+            try {
+                // Khởi tạo Firebase
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
 
-            showMainSection('loginSection'); // Hiển thị phần đăng nhập ban đầu
-        });
+                // Hiển thị mainApp và customerManagementSection ngay lập tức
+                document.getElementById('mainApp').style.display = 'block';
+                showSubSection('customerManagementSection');
+                await loadCustomers(); // Tải khách hàng khi trang khởi tạo
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                // Hiển thị lỗi nếu Firebase không khởi tạo được
+                const container = document.querySelector('.container');
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message error';
+                errorMessage.textContent = 'Lỗi khởi tạo ứng dụng. Vui lòng kiểm tra console để biết chi tiết.';
+                container.prepend(errorMessage);
+            }
+        })();
     </script>
 </body>
 </html>
