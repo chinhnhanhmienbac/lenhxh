@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Lập Lệnh Xuất Hàng</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
+       .container { max-width: 900px; margin: 0 auto; padding: 20px; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+        h1, h2, h3 { color: #005A9C; }
+       .section { display: none; margin-top: 20px; border-top: 2px solid #ddd; padding-top: 20px; }
+       .section.active { display: block; }
+       .form-group { margin-bottom: 15px; }
+       .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+       .form-group input,.form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+       .form-group button { width: 100%; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+       .form-group button:hover { background-color: #0056b3; }
+       .button-group { display: flex; gap: 10px; margin-top: 20px; }
+       .button-group button { flex: 1; padding: 12px; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+       .button-group button.secondary { background-color: #6c757d; }
+       .button-group button.danger { background-color: #dc3545; }
+       .button-group button:hover { opacity: 0.9; }
+       .table-container { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+       .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+       .message.success { background-color: #d4edda; color: #155724; }
+       .message.error { background-color: #f8d7da; color: #721c24; }
+        #adminPanel button { margin-bottom: 10px; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+    <script src="https://unpkg.com/read-excel-file@5.0.0/dist/read-excel-file.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-template@1.4.4/dist/xlsx-template.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Hệ thống Lập Lệnh Xuất Hàng</h1>
+
+        <div id="loginSection" class="section active">
+            <h2>Đăng nhập</h2>
+            <div class="form-group">
+                <label for="passwordInput">Nhập mật khẩu để bắt đầu:</label>
+                <input type="password" id="passwordInput" placeholder="Mật khẩu">
+            </div>
+            <div class="form-group">
+                <button onclick="checkPassword()">Đăng nhập</button>
+            </div>
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <div id="mainApp" class="section">
+            <div class="button-group">
+                <button onclick="showSection('customerManagementSection')">Quản lý Khách hàng</button>
+                <button onclick="showSection('orderCreationSection')">Lập Lệnh Bán hàng</button>
+                <button onclick="showSection('adminPanel')">Quản trị Trang</button>
+                <button onclick="logout()" class="secondary">Đăng xuất</button>
+            </div>
+
+            <div id="customerManagementSection" class="section active">
+                <h3>Quản lý Khách hàng</h3>
+                <p>Nhập liệu danh sách khách hàng theo 2 cách.</p>
+                <div class="form-group">
+                    <label>Cách 1: Nhập bằng file Excel</label>
+                    <input type="file" id="excelFileInput" accept=".xlsx">
+                    <button onclick="importCustomers()">Tải lên file MaunhapDS.xlsx</button>
+                    <div id="importMessage" class="message"></div>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label>Cách 2: Nhập từng khách hàng</label>
+                    <input type="text" id="newCustomerCode" placeholder="MÃ MỚI">
+                    <input type="text" id="newCustomerName" placeholder="Tên đối tượng">
+                    <button onclick="saveCustomer()">Lưu khách hàng mới</button>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label>Sửa thông tin khách hàng</label>
+                    <input type="text" id="editCustomerCode" placeholder="MÃ MỚI để sửa">
+                    <input type="text" id="editCustomerName" placeholder="Tên đối tượng mới">
+                    <button onclick="updateCustomer()">Sửa và Lưu</button>
+                </div>
+                <div class="form-group">
+                    <button onclick="exportCustomers()">Xuất danh sách khách hàng ra Excel</button>
+                </div>
+                <div class="table-container">
+                    <h3>Danh sách khách hàng</h3>
+                    <table id="customerTable">
+                        <thead>
+                            <tr><th>MÃ MỚI</th><th>Tên đối tượng</th></tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="orderCreationSection" class="section">
+                <h3>Lập Lệnh Bán hàng</h3>
+                <div class="form-group">
+                    <label for="orderDate">Ngày tháng năm (G12):</label>
+                    <input type="date" id="orderDate">
+                </div>
+                <div class="form-group">
+                    <label for="recipientCode">MÃ MỚI Khách hàng:</label>
+                    <input type="text" id="recipientCode" placeholder="Nhập MÃ MỚI">
+                </div>
+                <div class="form-group">
+                    <label for="recipientName">Người nhận hàng (A16):</label>
+                    <input type="text" id="recipientName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="carrierName">Người vận chuyển (G18):</label>
+                    <input type="text" id="carrierName" placeholder="Nhập tên người vận chuyển">
+                </div>
+                <div class="form-group">
+                    <label for="vehicleNumber">Số xe (G21):</label>
+                    <input type="text" id="vehicleNumber" placeholder="Nhập số xe">
+                </div>
+                <div class="form-group">
+                    <label for="bottles45kg">Số chai 45 kg (D23):</label>
+                    <input type="number" id="bottles45kg" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="bottles12kg">Số chai 12 kg (D24):</label>
+                    <input type="number" id="bottles12kg" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="bottles11kg">Số chai 11 kg (D25):</label>
+                    <input type="number" id="bottles11kg" min="0" value="0">
+                </div>
+                <div class="button-group">
+                    <button onclick="saveOrder()">Lưu Lệnh</button>
+                    <button onclick="printOrder()" class="secondary">In Lệnh</button>
+                </div>
+                <div id="orderMessage" class="message"></div>
+            </div>
+
+            <div id="adminPanel" class="section">
+                <h3>Quản trị Trang</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Nhập mật khẩu quản trị:</label>
+                    <input type="password" id="adminPassword">
+                    <button onclick="checkAdminPassword()">Xác nhận</button>
+                </div>
+                <div id="adminFunctions" style="display: none;">
+                    <button onclick="deleteAllCustomers()" class="danger">Xóa toàn bộ danh sách khách hàng</button>
+                    <button onclick="deleteAllOrders()" class="danger">Xóa toàn bộ dữ liệu lệnh</button>
+                    <button onclick="hideAdminFunctions()" class="secondary">Đóng</button>
+                    <div id="adminMessage" class="message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình Firebase của bạn [1]
+        const firebaseConfig = {
+            apiKey: "AIzaSyBy1H9xX0qwnjpEQngFKpMq56L6VvMWqAI",
+            authDomain: "cnmb-ce04d.firebaseapp.com",
+            databaseURL: "https://cnmb-ce04d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "cnmb-ce04d",
+            storageBucket: "cnmb-ce04d.firebasestorage.app",
+            messagingSenderId: "854586394737",
+            appId: "1:854586394737:web:92825e9abc082db7da73d0",
+            measurementId: "G-QH7VEVNFDL"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const CUSTOMERS_COLLECTION = 'customers';
+        const ORDERS_COLLECTION = 'orders';
+        const COUNTER_COLLECTION = 'orderCounters';
+        const COUNTER_DOC_ID = 'mainCounter';
+
+        // Mật khẩu cứng theo yêu cầu của bạn
+        const mainPassword = '1122334455';
+        const adminPassword = '24681357';
+
+        // Ẩn/hiện các section của ứng dụng
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        // Chức năng đăng nhập ban đầu
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const messageEl = document.getElementById('loginMessage');
+            if (password === mainPassword) {
+                showSection('mainApp');
+                showSection('customerManagementSection');
+                loadCustomers();
+                messageEl.textContent = '';
+            } else {
+                messageEl.textContent = 'Mật khẩu không đúng!';
+                messageEl.className = 'message error';
+            }
+        }
+
+        // Đăng xuất
+        function logout() {
+            showSection('loginSection');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Chức năng quản lý Khách hàng
+        async function loadCustomers() {
+            const tableBody = document.querySelector('#customerTable tbody');
+            tableBody.innerHTML = '';
+            const customersRef = db.collection(CUSTOMERS_COLLECTION);
+            const snapshot = await customersRef.get();
+            snapshot.forEach(doc => {
+                const customer = doc.data();
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = doc.id;
+                row.insertCell(1).textContent = customer.customerName;
+            });
+        }
+
+        async function importCustomers() {
+            const input = document.getElementById('excelFileInput');
+            const file = input.files;
+            const messageEl = document.getElementById('importMessage');
+
+            if (!file) {
+                messageEl.textContent = 'Vui lòng chọn một file Excel.';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            try {
+                // Sử dụng thư viện read-excel-file để đọc file trực tiếp trên trình duyệt [3]
+                const rows = await readXlsxFile(file);
+                // Giả định hàng đầu tiên là header, bỏ qua nó
+                const customersToSave = rows.slice(1);
+                
+                // Sử dụng batch write để lưu nhiều document cùng lúc [4]
+                const batch = db.batch();
+                customersToSave.forEach(row => {
+                    const customerCode = row[1]; // Cột "MÃ MỚI"
+                    const customerName = row[2]; // Cột "Tên đối tượng"
+                    if (customerCode && customerName) {
+                        const docRef = db.collection(CUSTOMERS_COLLECTION).doc(customerCode.toString());
+                        batch.set(docRef, { customerName: customerName.toString() });
+                    }
+                });
+
+                await batch.commit();
+                messageEl.textContent = 'Nhập liệu thành công!';
+                messageEl.className = 'message success';
+                loadCustomers();
+            } catch (error) {
+                console.error("Lỗi khi nhập file Excel:", error);
+                messageEl.textContent = 'Lỗi: ' + error.message;
+                messageEl.className = 'message error';
+            }
+        }
+
+        async function saveCustomer() {
+            const customerCode = document.getElementById('newCustomerCode').value;
+            const customerName = document.getElementById('newCustomerName').value;
+
+            if (!customerCode ||!customerName) {
+                alert('Vui lòng nhập đầy đủ Mã và Tên khách hàng.');
+                return;
+            }
+
+            await db.collection(CUSTOMERS_COLLECTION).doc(customerCode).set({
+                customerName: customerName
+            });
+            alert('Đã lưu khách hàng mới!');
+            document.getElementById('newCustomerCode').value = '';
+            document.getElementById('newCustomerName').value = '';
+            loadCustomers();
+        }
+
+        async function updateCustomer() {
+            const customerCode = document.getElementById('editCustomerCode').value;
+            const newCustomerName = document.getElementById('editCustomerName').value;
+
+            if (!customerCode ||!newCustomerName) {
+                alert('Vui lòng nhập đầy đủ Mã và Tên khách hàng mới.');
+                return;
+            }
+
+            const customerRef = db.collection(CUSTOMERS_COLLECTION).doc(customerCode);
+            await customerRef.update({ customerName: newCustomerName });
+            alert('Đã cập nhật thông tin khách hàng!');
+            document.getElementById('editCustomerCode').value = '';
+            document.getElementById('editCustomerName').value = '';
+            loadCustomers();
+        }
+
+        function exportCustomers() {
+            const table = document.getElementById('customerTable');
+            let csv =;
+            for (let i = 0; i < table.rows.length; i++) {
+                let row =, cols = table.rows[i].querySelectorAll('td, th');
+                for (let j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                }
+                csv.push(row.join(','));
+            }
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "DanhSachKhachHang.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Chức năng Lập Lệnh Bán hàng
+        document.getElementById('recipientCode').addEventListener('input', async (e) => {
+            const customerCode = e.target.value;
+            if (customerCode) {
+                const customerRef = db.collection(CUSTOMERS_COLLECTION).doc(customerCode);
+                const doc = await customerRef.get();
+                if (doc.exists) {
+                    document.getElementById('recipientName').value = doc.data().customerName;
+                } else {
+                    document.getElementById('recipientName').value = 'Không tìm thấy khách hàng';
+                }
+            } else {
+                document.getElementById('recipientName').value = '';
+            }
+        });
+
+        async function saveOrder() {
+            const orderDate = document.getElementById('orderDate').value;
+            const recipientCode = document.getElementById('recipientCode').value;
+            const recipientName = document.getElementById('recipientName').value;
+            const carrierName = document.getElementById('carrierName').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const bottles45kg = parseInt(document.getElementById('bottles45kg').value);
+            const bottles12kg = parseInt(document.getElementById('bottles12kg').value);
+            const bottles11kg = parseInt(document.getElementById('bottles11kg').value);
+            const messageEl = document.getElementById('orderMessage');
+
+            if (!orderDate ||!recipientCode ||!recipientName ||!carrierName ||!vehicleNumber) {
+                messageEl.textContent = 'Vui lòng điền đầy đủ thông tin bắt buộc.';
+                messageEl.className = 'message error';
+                return;
+            }
+
+            try {
+                // Sử dụng Transaction để tạo mã lệnh tự động, tránh xung đột dữ liệu [5]
+                const counterRef = db.collection(COUNTER_COLLECTION).doc(COUNTER_DOC_ID);
+                let orderNumber = '';
+
+                await db.runTransaction(async (transaction) => {
+                    const counterDoc = await transaction.get(counterRef);
+                    let lastOrderNumber = 0;
+                    if (counterDoc.exists) {
+                        lastOrderNumber = counterDoc.data().lastOrderNumber |
+
+| 0;
+                    }
+                    const newOrderNumber = lastOrderNumber + 1;
+                    orderNumber = String(newOrderNumber).padStart(3, '0');
+                    transaction.set(counterRef, { lastOrderNumber: newOrderNumber });
+                });
+
+                const orderData = {
+                    orderNumber: orderNumber,
+                    date: orderDate,
+                    recipientCode: recipientCode,
+                    recipientName: recipientName,
+                    carrierName: carrierName,
+                    vehicleNumber: vehicleNumber,
+                    bottles45kg: bottles45kg,
+                    bottles12kg: bottles12kg,
+                    bottles11kg: bottles11kg,
+                    createdAt: new Date()
+                };
+
+                await db.collection(ORDERS_COLLECTION).doc(orderNumber).set(orderData);
+                messageEl.textContent = `Đã lưu lệnh xuất hàng số: ${orderNumber}`;
+                messageEl.className = 'message success';
+                
+                // Sau khi lưu thành công, bạn có thể gọi hàm in nếu cần
+            } catch (error) {
+                console.error("Lỗi khi lưu lệnh:", error);
+                messageEl.textContent = 'Lỗi: ' + error.message;
+                messageEl.className = 'message error';
+            }
+        }
+
+        async function printOrder() {
+            const orderNumber = document.getElementById('orderMessage').textContent.split(': ')[1];
+            if (!orderNumber |
+
+| orderNumber.length === 0) {
+                alert('Vui lòng lưu lệnh trước khi in.');
+                return;
+            }
+
+            const orderRef = db.collection(ORDERS_COLLECTION).doc(orderNumber);
+            const doc = await orderRef.get();
+            if (!doc.exists) {
+                alert('Không tìm thấy lệnh này.');
+                return;
+            }
+            const orderData = doc.data();
+
+            // Tải template file excel
+            const templateUrl = 'https://docs.google.com/spreadsheets/d/1XlR_B6zNqO_R4bK_GjVl6k5x7M4z8dM9/export?format=xlsx';
+            
+            try {
+                const response = await fetch(templateUrl);
+                const buffer = await response.arrayBuffer();
+
+                // Tạo một instance của XlsxTemplate từ buffer
+                const template = new XlsxTemplate(buffer);
+
+                // Các tham số tương ứng với các placeholder trong file mẫu
+                const values = {
+                    G11: orderNumber,
+                    G12: orderData.date,
+                    A16: orderData.recipientName,
+                    G18: orderData.carrierName,
+                    G21: orderData.vehicleNumber,
+                    D23: orderData.bottles45kg,
+                    D24: orderData.bottles12kg,
+                    D25: orderData.bottles11kg
+                };
+
+                // Điền dữ liệu vào template
+                template.substitute(1, values);
+
+                // Tạo một file blob từ kết quả
+                const outputData = template.generate({ type: 'blob' });
+
+                // Lưu file với tên tùy chỉnh
+                saveAs(outputData, `Lệnh Xuất Hàng_${orderNumber}.xlsx`);
+                alert('Đã xuất file Excel thành công!');
+            } catch (error) {
+                console.error("Lỗi khi in lệnh:", error);
+                alert('Lỗi khi in lệnh: ' + error.message);
+            }
+        }
+
+        // Chức năng quản trị
+        function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const messageEl = document.getElementById('adminMessage');
+            if (password === adminPassword) {
+                document.getElementById('adminFunctions').style.display = 'block';
+                messageEl.textContent = 'Đã vào chế độ quản trị.';
+                messageEl.className = 'message success';
+            } else {
+                messageEl.textContent = 'Mật khẩu quản trị không đúng!';
+                messageEl.className = 'message error';
+            }
+        }
+
+        function hideAdminFunctions() {
+            document.getElementById('adminFunctions').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminMessage').textContent = '';
+        }
+
+        async function deleteAllCustomers() {
+            if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách khách hàng? Thao tác này không thể hoàn tác.')) return;
+
+            const messageEl = document.getElementById('adminMessage');
+            const batchSize = 500;
+            const collectionRef = db.collection(CUSTOMERS_COLLECTION);
+            let totalDeleted = 0;
+
+            try {
+                // Sử dụng batch delete để xóa collection một cách hiệu quả [6]
+                let query = collectionRef.limit(batchSize);
+                while (true) {
+                    const snapshot = await query.get();
+                    if (snapshot.size === 0) break;
+                    
+                    const batch = db.batch();
+                    snapshot.docs.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    totalDeleted += snapshot.size;
+                    console.log(`Đã xóa ${snapshot.size} document. Tổng cộng: ${totalDeleted}`);
+                }
+                messageEl.textContent = `Đã xóa thành công ${totalDeleted} khách hàng.`;
+                messageEl.className = 'message success';
+                loadCustomers(); // Cập nhật lại danh sách sau khi xóa
+            } catch (error) {
+                console.error("Lỗi khi xóa khách hàng:", error);
+                messageEl.textContent = 'Lỗi khi xóa: ' + error.message;
+                messageEl.className = 'message error';
+            }
+        }
+
+        async function deleteAllOrders() {
+            if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu lệnh? Thao tác này không thể hoàn tác.')) return;
+
+            const messageEl = document.getElementById('adminMessage');
+            const batchSize = 500;
+            const collectionRef = db.collection(ORDERS_COLLECTION);
+            let totalDeleted = 0;
+
+            try {
+                let query = collectionRef.limit(batchSize);
+                while (true) {
+                    const snapshot = await query.get();
+                    if (snapshot.size === 0) break;
+
+                    const batch = db.batch();
+                    snapshot.docs.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    totalDeleted += snapshot.size;
+                    console.log(`Đã xóa ${snapshot.size} document. Tổng cộng: ${totalDeleted}`);
+                }
+
+                // Xóa cả bộ đếm để reset số lệnh
+                await db.collection(COUNTER_COLLECTION).doc(COUNTER_DOC_ID).delete();
+
+                messageEl.textContent = `Đã xóa thành công ${totalDeleted} lệnh.`;
+                messageEl.className = 'message success';
+            } catch (error) {
+                console.error("Lỗi khi xóa lệnh:", error);
+                messageEl.textContent = 'Lỗi khi xóa: ' + error.message;
+                messageEl.className = 'message error';
+            }
+        }
+    </script>
+</body>
+</html>
