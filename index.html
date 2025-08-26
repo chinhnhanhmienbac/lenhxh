@@ -185,11 +185,38 @@
             padding: 8px 12px;
             font-size: 14px;
         }
+
+        .login-container {
+            width: 300px;
+            margin: 100px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-container input {
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div id="login-view">
+        <div class="login-container">
+            <h2>Đăng nhập</h2>
+            <div class="form-group">
+                <input type="password" id="passwordInput" placeholder="Nhập mật khẩu">
+            </div>
+            <button id="loginBtn">Vào trang</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="main-content">
         <header>
             <img src="https://pvgaslpg.com.vn/uploads/LPG%20xanh%20animation.gif" alt="Logo PV Gas LPG" width="150" height="150">
             <h1>CHƯƠNG TRÌNH LẬP LỆNH XUẤT HÀNG</h1>
@@ -347,6 +374,24 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+
+        // Lấy các phần tử DOM cho màn hình đăng nhập
+        const loginView = document.getElementById('login-view');
+        const mainContent = document.getElementById('main-content');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Logic đăng nhập
+        loginBtn.addEventListener('click', () => {
+            const password = passwordInput.value;
+            if (password === 'hanoi') {
+                loginView.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+            } else {
+                alert('Mật khẩu không đúng! Vui lòng thử lại.');
+                passwordInput.value = '';
+            }
+        });
 
         // Lấy các phần tử DOM cho phần khách hàng
         const customerView = document.getElementById('customer-view');
@@ -707,11 +752,10 @@
 
             const webAppUrl = "https://script.google.com/macros/s/AKfycbx4ae0D2M6SBfP7Jj36TJSOVL87cnm8CT1RzRDPJYEdK67C2Vm8i80FKAlDC18eNl13dw/exec";
             const sheetsUrl = "https://docs.google.com/spreadsheets/d/165Nemhr2nJAQukboce8C_OKhiNDn0cWotlQ-AVq4E1E/edit#gid=431300796";
-
-            let rowIndex = startIndex;
-            ordersToDisplay.forEach(order => {
+            
+            ordersToDisplay.forEach((order, index) => {
                 const row = orderTableBody.insertRow();
-                const orderNumber = totalOrders - rowIndex++;
+                const orderNumber = startIndex + index + 1;
                 
                 row.insertCell(0).textContent = orderNumber;
                 row.insertCell(1).textContent = order.customerName;
@@ -799,7 +843,7 @@
                 const sortedKeys = Object.keys(data).sort((a, b) => {
                     const timeA = parseInt(a.substring(1));
                     const timeB = parseInt(b.substring(1));
-                    return timeB - timeA;
+                    return timeA - timeB; // Thay đổi sắp xếp để thứ tự tăng dần
                 });
                 
                 sortedKeys.forEach(key => {
@@ -807,7 +851,8 @@
                 });
             }
 
-            currentPage = 1;
+            const totalPages = Math.ceil(allOrders.length / ITEMS_PER_PAGE);
+            currentPage = totalPages > 0 ? totalPages : 1; // Tự động chuyển đến trang cuối
             renderOrdersForPage(currentPage);
         });
 
