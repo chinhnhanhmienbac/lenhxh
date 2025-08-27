@@ -320,6 +320,7 @@
                 <div class="list-header">
                     <h2>Danh sách các Lệnh Xuất Hàng</h2>
                     <div class="list-header-buttons">
+                        <button id="exportOrdersBtn">Xuất DS lệnh</button>
                         <button id="deleteAllOrdersBtn" class="delete-all-btn">Xoá tất cả các lệnh</button>
                         <button id="backToCustomerListBtn2">Quay lại</button>
                     </div>
@@ -430,6 +431,7 @@
         const prevPageBtn = document.getElementById('prevPageBtn');
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageInfoSpan = document.getElementById('pageInfo');
+        const exportOrdersBtn = document.getElementById('exportOrdersBtn');
 
         // Cấu hình phân trang
         const ITEMS_PER_PAGE = 50;
@@ -870,6 +872,35 @@
                 currentPage++;
                 renderOrdersForPage(currentPage);
             }
+        });
+        
+        // --- Xử lý chức năng mới: Xuất DS lệnh ---
+        exportOrdersBtn.addEventListener('click', () => {
+            if (allOrders.length === 0) {
+                alert('Không có dữ liệu lệnh để xuất ra file Excel.');
+                return;
+            }
+
+            const dataToExport = allOrders.map((order, index) => ({
+                'Thứ tự': index + 1,
+                'Tên Khách hàng': order.customerName,
+                'Ngày tháng': order.date,
+                'Kho xuất': order.warehouse,
+                'Người vận chuyển': order.transporter,
+                'Số xe': order.vehicle,
+                'LPG 45 kg': order.lpg45kg,
+                'LPG 12 kg': order.lpg12kg,
+                'LPG 11 kg': order.lpg11kg,
+                'Chai 45 kg': order.chai45kg,
+                '45 kg van kép': order.chai45kgDual,
+                'Chai 12 kg': order.chai12kg,
+                'Chai 11 kg': order.chai11kg
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachLenh");
+            XLSX.writeFile(workbook, "danh-sach-lenh-xuat-hang.xlsx");
         });
     </script>
 </body>
